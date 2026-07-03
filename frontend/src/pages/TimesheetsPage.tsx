@@ -331,6 +331,8 @@ const TimesheetsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatus] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   // Modals
   const [clockOutTarget, setClockOutTarget] = useState<Timesheet | null>(null);
@@ -357,7 +359,8 @@ const TimesheetsPage = () => {
     const name = `${t.employee_detail?.first_name ?? ''} ${t.employee_detail?.last_name ?? ''}`.toLowerCase();
     const matchSearch = !q || t.work_date.includes(q) || t.task_description?.toLowerCase().includes(q) || name.includes(q);
     const matchStatus = !statusFilter || t.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchDate = (!dateFrom || t.work_date >= dateFrom) && (!dateTo || t.work_date <= dateTo);
+    return matchSearch && matchStatus && matchDate;
   });
 
   const totalHours = timesheets
@@ -493,7 +496,7 @@ const TimesheetsPage = () => {
       <div className="card">
         <div className="card-header">
           <span className="card-title">All Timesheet Entries</span>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center" style={{ flexWrap: 'wrap' }}>
             <div className="search-bar">
               <span className="search-icon">🔍</span>
               <input
@@ -503,6 +506,34 @@ const TimesheetsPage = () => {
                 onChange={e => setSearch(e.target.value)}
                 style={{ width: 220 }}
               />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                title="From date"
+                max={dateTo || undefined}
+                style={{ width: 145, padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: '13px' }}
+              />
+              <span style={{ color: 'var(--text-muted)' }}>–</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                title="To date"
+                min={dateFrom || undefined}
+                style={{ width: 145, padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: '13px' }}
+              />
+              {(dateFrom || dateTo) && (
+                <button
+                  className="btn btn-ghost btn-xs"
+                  onClick={() => { setDateFrom(''); setDateTo(''); }}
+                  title="Clear date filter"
+                >
+                  ✕
+                </button>
+              )}
             </div>
             <select
               value={statusFilter}

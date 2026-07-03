@@ -176,6 +176,8 @@ const LeaveRequestsPage = () => {
   const [search, setSearch] = useState('');
   const [typeFilter, setType] = useState('');
   const [statusFilter, setStatus] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   // Modals
   const [rejectTarget, setRejectTarget] = useState<LeaveRequest | null>(null);
@@ -196,7 +198,9 @@ const LeaveRequestsPage = () => {
     const matchSearch = !q || r.reason?.toLowerCase().includes(q) || r.leave_type.includes(q) || name.includes(q);
     const matchType = !typeFilter || r.leave_type === typeFilter;
     const matchStatus = !statusFilter || r.status === statusFilter;
-    return matchSearch && matchType && matchStatus;
+    // A request matches if its [start_date, end_date] span overlaps the selected filter range
+    const matchDate = (!dateFrom || r.end_date >= dateFrom) && (!dateTo || r.start_date <= dateTo);
+    return matchSearch && matchType && matchStatus && matchDate;
   });
 
   /* ── Approve ── */
@@ -306,6 +310,34 @@ const LeaveRequestsPage = () => {
                 onChange={e => setSearch(e.target.value)}
                 style={{ width: 200 }}
               />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                title="From date"
+                max={dateTo || undefined}
+                style={{ width: 145, padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: '13px' }}
+              />
+              <span style={{ color: 'var(--text-muted)' }}>–</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                title="To date"
+                min={dateFrom || undefined}
+                style={{ width: 145, padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: '13px' }}
+              />
+              {(dateFrom || dateTo) && (
+                <button
+                  className="btn btn-ghost btn-xs"
+                  onClick={() => { setDateFrom(''); setDateTo(''); }}
+                  title="Clear date filter"
+                >
+                  ✕
+                </button>
+              )}
             </div>
             <select
               value={typeFilter}
