@@ -1,11 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import TimesheetsPage from './pages/TimesheetsPage';
 import LeaveRequestsPage from './pages/LeaveRequestsPage';
 import RegisterEmployeePage from './pages/RegisterEmployeePage';
+import NotFoundPage from './pages/errors/NotFoundPage';
+import ForbiddenPage from './pages/errors/ForbiddenPage';
+import ServerErrorPage from './pages/errors/ServerErrorPage';
+import OfflineErrorPage from './pages/errors/OfflineErrorPage';
 
 function App() {
   return (
@@ -30,9 +35,11 @@ function App() {
       <Route
         path="/employees/new"
         element={
-          <ProtectedRoute>
+          <RoleProtectedRoute
+            allow={(user) => user.role === 'admin' || (user.role === 'manager' && user.can_create_users)}
+          >
             <RegisterEmployeePage />
-          </ProtectedRoute>
+          </RoleProtectedRoute>
         }
       />
       <Route
@@ -51,7 +58,10 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/403" element={<ForbiddenPage />} />
+      <Route path="/500" element={<ServerErrorPage />} />
+      <Route path="/offline" element={<OfflineErrorPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

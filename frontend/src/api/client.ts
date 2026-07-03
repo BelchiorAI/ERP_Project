@@ -17,17 +17,36 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401, clear tokens and redirect to login
+// Redirect to a matching full-page error screen depending on how the request failed
+const ERROR_PATHS = ['/login', '/403', '/500', '/offline'];
+
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const onErrorPage = ERROR_PATHS.includes(window.location.pathname);
+    const status = error.response?.status;
+
+    if (status === 401) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      if (window.location.pathname !== '/login') {
+      if (!onErrorPage) {
         window.location.href = '/login';
       }
+    } else if (status === 403) {
+      if (!onErrorPage) {
+        window.location.href = '/403';
+      }
+    } else if (status >= 500) {
+      if (!onErrorPage) {
+        window.location.href = '/500';
+      }
+    } else if (!error.response) {
+      // Request never reached the server (backend down, no connection, etc.)
+      if (!onErrorPage) {
+        window.location.href = '/offline';
+      }
     }
+
     return Promise.reject(error);
   }
 );
