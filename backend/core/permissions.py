@@ -45,12 +45,15 @@ class IsOwnerOrAdminOrManager(permissions.BasePermission):
         # User is admin
         if request.user.role == RoleChoices.ADMIN:
             return True
-            
-        # User is manager and the object's owner reports to them
+
         if request.user.role == RoleChoices.MANAGER:
+            # Manager has been granted company-wide record access
+            if request.user.can_manage_all_records:
+                return True
+            # User is manager and the object's owner reports to them
             if owner.manager == request.user:
                 return True
-                
+
         return False
 
 class IsManagerOnly(permissions.BasePermission):

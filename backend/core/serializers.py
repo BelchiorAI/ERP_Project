@@ -8,7 +8,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'phone_number', 'job_title', 'department', 'hire_date',
-            'employment_status', 'role', 'manager', 'password', 'can_create_users'
+            'employment_status', 'role', 'manager', 'password', 'can_create_users',
+            'can_manage_all_records',
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},

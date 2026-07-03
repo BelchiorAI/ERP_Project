@@ -40,16 +40,30 @@ const EmployeesPage = () => {
     getEmployees().then(setEmployees).finally(() => setLoading(false));
   };
 
-  const handleToggleCanCreate = async (empId: number, currentVal: boolean) => {
+  const handleTogglePermission = async (
+    empId: number,
+    field: 'can_create_users' | 'can_manage_all_records',
+    currentVal: boolean
+  ) => {
     try {
-      await updateEmployee(empId, { can_create_users: !currentVal });
+      await updateEmployee(empId, { [field]: !currentVal });
       fetchEmployees();
     } catch (err) {
       console.error('Failed to update permission', err);
     }
   };
 
+  const handleManagerChange = async (empId: number, newManagerId: string) => {
+    try {
+      await updateEmployee(empId, { manager: newManagerId ? Number(newManagerId) : null });
+      fetchEmployees();
+    } catch (err) {
+      console.error('Failed to reassign manager', err);
+    }
+  };
+
   const departments = [...new Set(employees.map(e => e.department))].sort();
+  const managers = employees.filter(e => e.role === 'manager');
 
   const filtered = employees.filter(e => {
     const q = search.toLowerCase();
@@ -120,6 +134,7 @@ const EmployeesPage = () => {
                   <th>Department</th>
                   <th>Job Title</th>
                   <th>Role</th>
+                  {user?.role === 'admin' && <th>Reports To</th>}
                   <th>Hire Date</th>
                   <th>Status</th>
                   {user?.role === 'admin' && <th>Permissions</th>}
@@ -142,19 +157,49 @@ const EmployeesPage = () => {
                     <td><span className="chip">{emp.department}</span></td>
                     <td className="td-primary">{emp.job_title}</td>
                     <td><span className={roleBadge(emp.role)}>{emp.role}</span></td>
+                    {user?.role === 'admin' && (
+                      <td>
+                        {emp.role === 'admin' ? (
+                          <span className="text-muted text-sm">—</span>
+                        ) : (
+                          <select
+                            value={emp.manager ?? ''}
+                            onChange={e => handleManagerChange(emp.id, e.target.value)}
+                            style={{ width: 160, padding: '7px 10px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: '12px' }}
+                          >
+                            <option value="">— No manager —</option>
+                            {managers.filter(m => m.id !== emp.id).map(m => (
+                              <option key={m.id} value={m.id}>
+                                {`${m.first_name} ${m.last_name}`.trim() || m.username}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </td>
+                    )}
                     <td>{emp.hire_date}</td>
                     <td><span className={statusBadge(emp.employment_status)}>{emp.employment_status.replace('_', ' ')}</span></td>
                     {user?.role === 'admin' && (
                       <td>
                         {emp.role === 'manager' && (
-                          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
-                            <input 
-                              type="checkbox" 
-                              checked={emp.can_create_users || false}
-                              onChange={() => handleToggleCanCreate(emp.id, emp.can_create_users)}
-                            />
-                            Can create users
-                          </label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={emp.can_create_users || false}
+                                onChange={() => handleTogglePermission(emp.id, 'can_create_users', emp.can_create_users)}
+                              />
+                              Can create users
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={emp.can_manage_all_records || false}
+                                onChange={() => handleTogglePermission(emp.id, 'can_manage_all_records', emp.can_manage_all_records)}
+                              />
+                              Can manage all timesheets &amp; leave requests
+                            </label>
+                          </div>
                         )}
                       </td>
                     )}

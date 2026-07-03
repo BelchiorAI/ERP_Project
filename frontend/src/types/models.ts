@@ -12,6 +12,7 @@ export interface Employee {
   employment_status: 'active' | 'on_leave' | 'terminated';
   role: 'admin' | 'manager' | 'employee';
   can_create_users: boolean;
+  can_manage_all_records: boolean;
   manager: number | null;
 }
 

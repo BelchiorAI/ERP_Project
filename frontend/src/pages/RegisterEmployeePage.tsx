@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { createEmployee } from '../api/employees';
+import { createEmployee, getEmployees } from '../api/employees';
+import { useAuth } from '../context/AuthContext';
+import type { Employee } from '../types/models';
 
 const RegisterEmployeePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [managers, setManagers] = useState<Employee[]>([]);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -16,7 +21,15 @@ const RegisterEmployeePage = () => {
     job_title: '',
     department: '',
     hire_date: new Date().toISOString().split('T')[0],
+    role: 'employee' as 'employee' | 'manager',
+    manager: '',
   });
+
+  useEffect(() => {
+    if (isAdmin) {
+      getEmployees().then(all => setManagers(all.filter(e => e.role === 'manager'))).catch(() => {});
+    }
+  }, [isAdmin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +41,13 @@ const RegisterEmployeePage = () => {
       if (!payload.password) {
         delete payload.password;
       }
+      if (!isAdmin) {
+        // Role/manager are admin-only fields — let the backend apply its own defaults otherwise
+        delete payload.role;
+        delete payload.manager;
+      } else {
+        payload.manager = payload.manager ? Number(payload.manager) : null;
+      }
       await createEmployee(payload);
       navigate('/employees');
     } catch (err: any) {
@@ -38,7 +58,7 @@ const RegisterEmployeePage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -102,6 +122,44 @@ const RegisterEmployeePage = () => {
               <input type="date" name="hire_date" required value={formData.hire_date} onChange={handleChange} />
             </div>
           </div>
+
+          {isAdmin && (
+            <>
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '8px 0' }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="form-group">
+                  <label>Role</label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    style={{ width: '100%', padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }}
+                  >
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                  </select>
+                </div>
+                {formData.role === 'employee' && (
+                  <div className="form-group">
+                    <label>Reports To</label>
+                    <select
+                      name="manager"
+                      value={formData.manager}
+                      onChange={handleChange}
+                      style={{ width: '100%', padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }}
+                    >
+                      <option value="">— No manager —</option>
+                      {managers.map(m => (
+                        <option key={m.id} value={m.id}>
+                          {`${m.first_name} ${m.last_name}`.trim() || m.username}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
             <button type="button" className="btn btn-ghost" onClick={() => navigate('/employees')} disabled={isLoading}>

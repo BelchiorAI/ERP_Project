@@ -30,6 +30,7 @@ class Employee(AbstractUser):
     employment_status = models.CharField(max_length=20, choices=EmploymentStatusChoices.choices, default=EmploymentStatusChoices.ACTIVE)
     role = models.CharField(max_length=20, choices=RoleChoices.choices, default=RoleChoices.EMPLOYEE)
     can_create_users = models.BooleanField(default=False)
+    can_manage_all_records = models.BooleanField(default=False)
     manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='direct_reports')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
