@@ -19,8 +19,14 @@ const LoginPage = () => {
     try {
       await login({ username, password });
       navigate(from, { replace: true });
-    } catch {
-      setError('Invalid username or password. Please try again.');
+    } catch (err: any) {
+      if (!err.response) {
+        setError("Can't reach the server. Check your connection and try again.");
+      } else if (err.response.status >= 500) {
+        setError('The server ran into a problem. Please try again in a moment.');
+      } else {
+        setError('Invalid username or password. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
