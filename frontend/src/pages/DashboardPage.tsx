@@ -6,6 +6,7 @@ import { getLeaveRequests } from '../api/leaveRequests';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import type { Employee, Timesheet, LeaveRequest } from '../types/models';
+import { Users, CheckCircle2, Clock, Calendar, ArrowRight } from 'lucide-react';
 
 const statusBadge = (status: string) => {
   const map: Record<string, string> = {
@@ -40,28 +41,37 @@ const ManagerDashboard = ({
   const recentEmployees = [...employees].slice(0, 6);
   const recentLeave     = [...leaveRequests].slice(0, 5);
 
+  const stats = [
+    { icon: Users, label: 'Total Employees',    value: employees.length, color: 'blue'   },
+    { icon: CheckCircle2, label: 'Active Staff', value: active,           color: 'green'  },
+    { icon: Clock, label: 'Pending Timesheets',  value: pending_ts,       color: 'yellow' },
+    { icon: Calendar, label: 'Pending Leave',    value: pending_lr,       color: 'purple' },
+  ];
+
   return (
     <>
       <div className="stats-grid">
-        {[
-          { icon: '👥', label: 'Total Employees',    value: employees.length, color: 'blue'   },
-          { icon: '✅', label: 'Active Staff',         value: active,           color: 'green'  },
-          { icon: '⏱', label: 'Pending Timesheets',  value: pending_ts,       color: 'yellow' },
-          { icon: '🗓', label: 'Pending Leave',        value: pending_lr,       color: 'purple' },
-        ].map(s => (
-          <div key={s.label} className={`stat-card ${s.color}`}>
-            <div className={`stat-icon ${s.color}`}>{s.icon}</div>
-            <div className="stat-value">{s.value}</div>
-            <div className="stat-label">{s.label}</div>
-          </div>
-        ))}
+        {stats.map(s => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className={`stat-card ${s.color}`}>
+              <div className={`stat-icon ${s.color}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={20} />
+              </div>
+              <div className="stat-value">{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <div className="card">
           <div className="card-header">
             <span className="card-title">Team Members</span>
-            <a href="/employees" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/employees'); }}>View all →</a>
+            <a href="/employees" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/employees'); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              View all <ArrowRight size={14} />
+            </a>
           </div>
           <div className="table-wrapper">
             <table>
@@ -90,7 +100,9 @@ const ManagerDashboard = ({
         <div className="card">
           <div className="card-header">
             <span className="card-title">Recent Leave Requests</span>
-            <a href="/leave-requests" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/leave-requests'); }}>View all →</a>
+            <a href="/leave-requests" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/leave-requests'); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              View all <ArrowRight size={14} />
+            </a>
           </div>
           <div className="table-wrapper">
             <table>
@@ -161,7 +173,9 @@ const EmployeeDashboard = ({
         <div className="card">
           <div className="card-header">
             <span className="card-title">My Timesheets</span>
-            <a href="/timesheets" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/timesheets'); }}>View all →</a>
+            <a href="/timesheets" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/timesheets'); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              View all <ArrowRight size={14} />
+            </a>
           </div>
           <div className="table-wrapper">
             <table>
@@ -185,7 +199,9 @@ const EmployeeDashboard = ({
         <div className="card">
           <div className="card-header">
             <span className="card-title">My Leave Requests</span>
-            <a href="/leave-requests" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/leave-requests'); }}>View all →</a>
+            <a href="/leave-requests" className="btn btn-ghost btn-sm" onClick={e => { e.preventDefault(); navigate('/leave-requests'); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              View all <ArrowRight size={14} />
+            </a>
           </div>
           <div className="table-wrapper">
             <table>
@@ -241,8 +257,8 @@ const DashboardPage = () => {
         <div className="page-header-left">
           <h2>
             {isManagerOrAdmin
-              ? `Good morning, ${user?.first_name} 👋`
-              : `Welcome back, ${user?.first_name} 👋`}
+              ? `Good morning, ${user?.first_name}`
+              : `Welcome back, ${user?.first_name}`}
           </h2>
           <p>
             {isManagerOrAdmin

@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { createEmployee, getEmployees } from '../api/employees';
 import { useAuth } from '../context/AuthContext';
 import type { Employee } from '../types/models';
+import { AlertCircle } from 'lucide-react';
 
 const RegisterEmployeePage = () => {
   const navigate = useNavigate();
@@ -74,8 +75,9 @@ const RegisterEmployeePage = () => {
       <div className="card" style={{ maxWidth: 600, margin: '0 auto', padding: 24 }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {error && (
-            <div className="error-banner">
-              ⚠ {error}
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
             </div>
           )}
 

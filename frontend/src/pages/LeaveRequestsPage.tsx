@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import { getLeaveRequests, createLeaveRequest, updateLeaveRequest, deleteLeaveRequest } from '../api/leaveRequests';
 import type { LeaveRequest } from '../types/models';
 import { useAuth } from '../context/AuthContext';
+import { Search, Calendar, AlertCircle, X, Plus, FileText, Check } from 'lucide-react';
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const statusBadge = (status: string) => {
@@ -52,13 +53,18 @@ const RejectModal = ({ employeeName, onClose, onConfirm }: RejectModalProps) => 
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
         <div className="modal-header">
           <h3>Reject Leave Request</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
         </div>
         <p style={{ color: 'var(--text-secondary)', marginBottom: 16, fontSize: 14 }}>
           You are rejecting the leave request from <strong>{employeeName}</strong>. A reason is required.
         </p>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {err && <div className="error-banner">⚠ {err}</div>}
+          {err && (
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{err}</span>
+            </div>
+          )}
           <div className="form-group">
             <label>Reason for Rejection <span style={{ color: 'var(--danger)' }}>*</span></label>
             <textarea
@@ -121,10 +127,15 @@ const LeaveFormModal = ({ initial, onClose, onSave }: LeaveFormModalProps) => {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
         <div className="modal-header">
           <h3>{isEdit ? 'Edit Leave Request' : 'New Leave Request'}</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {err && <div className="error-banner">⚠ {err}</div>}
+          {err && (
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{err}</span>
+            </div>
+          )}
           <div className="form-group">
             <label>Leave Type</label>
             <select name="leave_type" value={form.leave_type} onChange={handleChange}
@@ -278,8 +289,8 @@ const LeaveRequestsPage = () => {
           <h2>Leave Requests</h2>
           <p>{requests.filter(r => r.status === 'pending').length} pending approval · {requests.length} total</p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => setFormModal({ mode: 'create' })}>
-          + New Request
+        <button className="btn btn-primary btn-sm" onClick={() => setFormModal({ mode: 'create' })} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <Plus size={15} /> New Request
         </button>
       </div>
 
@@ -301,14 +312,14 @@ const LeaveRequestsPage = () => {
         <div className="card-header">
           <span className="card-title">All Leave Requests</span>
           <div className="flex gap-2 items-center" style={{ flexWrap: 'wrap' }}>
-            <div className="search-bar">
-              <span className="search-icon">🔍</span>
+            <div className="search-bar" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={16} className="search-icon" style={{ position: 'absolute', left: 12, color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search reason or name…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ width: 200 }}
+                style={{ width: 200, paddingLeft: 36 }}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -334,8 +345,9 @@ const LeaveRequestsPage = () => {
                   className="btn btn-ghost btn-xs"
                   onClick={() => { setDateFrom(''); setDateTo(''); }}
                   title="Clear date filter"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               )}
             </div>
@@ -365,7 +377,7 @@ const LeaveRequestsPage = () => {
         <div className="table-wrapper">
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">🗓</div>
+              <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}><Calendar size={36} /></div>
               <h3>No leave requests found</h3>
               <p>Try adjusting your search or filters</p>
             </div>
@@ -416,8 +428,9 @@ const LeaveRequestsPage = () => {
                         <div>
                           <span className={statusBadge(r.status)}>{r.status}</span>
                           {r.manager_notes && r.status === 'rejected' && (
-                            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }} title={r.manager_notes}>
-                              📝 {r.manager_notes.slice(0, 40)}{r.manager_notes.length > 40 ? '…' : ''}
+                            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }} title={r.manager_notes}>
+                              <FileText size={12} style={{ flexShrink: 0 }} />
+                              <span>{r.manager_notes.slice(0, 40)}{r.manager_notes.length > 40 ? '…' : ''}</span>
                             </div>
                           )}
                         </div>
@@ -448,14 +461,16 @@ const LeaveRequestsPage = () => {
                               <button
                                 className="btn btn-success btn-xs"
                                 onClick={() => handleApprove(r.id)}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                               >
-                                ✓ Approve
+                                <Check size={13} /> Approve
                               </button>
                               <button
                                 className="btn btn-warning btn-xs"
                                 onClick={() => setRejectTarget(r)}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                               >
-                                ✕ Reject
+                                <X size={13} /> Reject
                               </button>
                             </>
                           )}
