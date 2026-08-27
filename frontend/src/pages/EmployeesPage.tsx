@@ -4,6 +4,7 @@ import { getEmployees, updateEmployee } from '../api/employees';
 import type { Employee } from '../types/models';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Search, Users, UserPlus } from 'lucide-react';
 
 const getInitials = (first: string, last: string) =>
   `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
@@ -93,14 +94,14 @@ const EmployeesPage = () => {
         <div className="card-header">
           <span className="card-title">All Employees</span>
           <div className="flex gap-2 items-center" style={{ flexWrap: 'wrap' }}>
-            <div className="search-bar">
-              <span className="search-icon">🔍</span>
+            <div className="search-bar" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={16} className="search-icon" style={{ position: 'absolute', left: 12, color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search employees…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ width: 220 }}
+                style={{ width: 220, paddingLeft: 36 }}
               />
             </div>
             <select
@@ -112,7 +113,8 @@ const EmployeesPage = () => {
               {departments.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             {(user?.role === 'admin' || (user?.role === 'manager' && user?.can_create_users)) && (
-              <button className="btn btn-primary btn-sm" onClick={() => navigate('/employees/new')}>
+              <button className="btn btn-primary btn-sm" onClick={() => navigate('/employees/new')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <UserPlus size={15} />
                 Register Employee
               </button>
             )}
@@ -122,7 +124,7 @@ const EmployeesPage = () => {
         <div className="table-wrapper">
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">👥</div>
+              <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}><Users size={36} /></div>
               <h3>No employees found</h3>
               <p>Try adjusting your search or filter</p>
             </div>

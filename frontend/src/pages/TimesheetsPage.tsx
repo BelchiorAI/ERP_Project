@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import { getTimesheets, createTimesheet, updateTimesheet, deleteTimesheet, getMonthlyReportData, downloadMonthlyReportCsv } from '../api/timesheets';
 import type { Timesheet } from '../types/models';
 import { useAuth } from '../context/AuthContext';
+import { Clock, Download, BarChart3, LogIn, LogOut, Plus, Search, AlertCircle, X } from 'lucide-react';
 
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -49,10 +50,15 @@ const ClockOutModal = ({ timesheet, onClose, onSave }: ClockOutModalProps) => {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
         <div className="modal-header">
           <h3>Clock Out</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {err && <div className="error-banner">⚠ {err}</div>}
+          {err && (
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{err}</span>
+            </div>
+          )}
           <div className="form-group">
             <label>Clock-out Time</label>
             <input type="time" value={clockOut} required onChange={e => setClockOut(e.target.value)} />
@@ -119,10 +125,15 @@ const TimesheetFormModal = ({ initial, onClose, onSave, isManager }: TimesheetFo
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
         <div className="modal-header">
           <h3>{isEdit ? 'Edit Timesheet' : 'Create Timesheet'}</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {err && <div className="error-banner">⚠ {err}</div>}
+          {err && (
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{err}</span>
+            </div>
+          )}
           <div className="form-group">
             <label>Work Date</label>
             <input type="date" name="work_date" required value={form.work_date} onChange={handleChange} />
@@ -232,10 +243,15 @@ const MonthlyReportModal = ({ onClose }: MonthlyReportModalProps) => {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 860, width: '92%' }}>
         <div className="modal-header">
           <h3>Monthly Timesheet Report</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {err && <div className="error-banner">⚠ {err}</div>}
+          {err && (
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{err}</span>
+            </div>
+          )}
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
@@ -272,8 +288,10 @@ const MonthlyReportModal = ({ onClose }: MonthlyReportModalProps) => {
               className="btn btn-primary"
               onClick={handleDownload}
               disabled={downloading || reportData.length === 0}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
-              {downloading ? 'Downloading…' : '📥 Download CSV'}
+              <Download size={15} />
+              {downloading ? 'Downloading…' : 'Download CSV'}
             </button>
           </div>
 
@@ -449,23 +467,23 @@ const TimesheetsPage = () => {
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {/* Strict Manager can view/download monthly timesheet report */}
           {isStrictManager && (
-            <button className="btn btn-warning btn-sm" onClick={() => setReportModalOpen(true)}>
-              📊 Monthly Report
+            <button className="btn btn-warning btn-sm" onClick={() => setReportModalOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <BarChart3 size={15} /> Monthly Report
             </button>
           )}
           {/* Clock In / Clock Out for employees */}
           {openEntry
-            ? <button className="btn btn-warning btn-sm" onClick={() => setClockOutTarget(openEntry)}>
-                Clock Out ↗
+            ? <button className="btn btn-warning btn-sm" onClick={() => setClockOutTarget(openEntry)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <LogOut size={15} /> Clock Out
               </button>
-            : <button className="btn btn-primary btn-sm" onClick={handleClockIn}>
-                Clock In ↙
+            : <button className="btn btn-primary btn-sm" onClick={handleClockIn} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <LogIn size={15} /> Clock In
               </button>
           }
           {/* Managers/Admins can manually create a timesheet for any employee */}
           {isManagerOrAdmin && (
-            <button className="btn btn-primary btn-sm" onClick={() => setFormModal({ mode: 'create' })}>
-              + Create Entry
+            <button className="btn btn-primary btn-sm" onClick={() => setFormModal({ mode: 'create' })} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Plus size={15} /> Create Entry
             </button>
           )}
         </div>
@@ -488,7 +506,10 @@ const TimesheetsPage = () => {
       {/* ── Active clock-in banner ── */}
       {openEntry && (
         <div style={{ background: 'rgba(var(--warning-rgb, 255,193,7), 0.15)', border: '1px solid var(--warning, #ffc107)', borderRadius: 'var(--radius)', padding: '12px 18px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>⏱ You are currently clocked in since <strong>{openEntry.clock_in}</strong></span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Clock size={18} style={{ color: 'var(--warning)', flexShrink: 0 }} />
+            <span>You are currently clocked in since <strong>{openEntry.clock_in}</strong></span>
+          </div>
           <button className="btn btn-warning btn-sm" onClick={() => setClockOutTarget(openEntry)}>Clock Out</button>
         </div>
       )}
@@ -497,14 +518,14 @@ const TimesheetsPage = () => {
         <div className="card-header">
           <span className="card-title">All Timesheet Entries</span>
           <div className="flex gap-2 items-center" style={{ flexWrap: 'wrap' }}>
-            <div className="search-bar">
-              <span className="search-icon">🔍</span>
+            <div className="search-bar" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={16} className="search-icon" style={{ position: 'absolute', left: 12, color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search by date or task…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ width: 220 }}
+                style={{ width: 220, paddingLeft: 36 }}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -530,8 +551,9 @@ const TimesheetsPage = () => {
                   className="btn btn-ghost btn-xs"
                   onClick={() => { setDateFrom(''); setDateTo(''); }}
                   title="Clear date filter"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               )}
             </div>
@@ -551,7 +573,7 @@ const TimesheetsPage = () => {
         <div className="table-wrapper">
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">⏱</div>
+              <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}><Clock size={36} /></div>
               <h3>No timesheet entries found</h3>
               <p>Try adjusting your search or filter</p>
             </div>

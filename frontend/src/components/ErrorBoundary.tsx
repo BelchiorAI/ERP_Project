@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import ErrorPage from './ErrorPage';
+import { AlertOctagon } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -25,7 +26,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       return (
         <ErrorPage
-          icon="💥"
+          icon={<AlertOctagon size={48} />}
           image="/errors/crash.png"
           title="Something went wrong"
           message="The application ran into an unexpected error. Reloading the page usually fixes this."

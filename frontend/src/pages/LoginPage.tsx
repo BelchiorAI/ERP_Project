@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Building2, AlertCircle, ArrowRight } from 'lucide-react';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -36,15 +37,18 @@ const LoginPage = () => {
     <div className="login-page">
       <div className="login-card">
         <div className="login-header">
-          <div className="login-logo">⚡</div>
+          <div className="login-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Building2 size={24} />
+          </div>
           <h1>ERP System</h1>
           <p>Sign in to your account to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && (
-            <div className="error-banner">
-              ⚠ {error}
+            <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
             </div>
           )}
 
@@ -75,10 +79,12 @@ const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+          <button type="submit" className="btn btn-primary" disabled={isLoading} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             {isLoading ? (
               <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Signing in…</>
-            ) : 'Sign In →'}
+            ) : (
+              <>Sign In <ArrowRight size={16} /></>
+            )}
           </button>
         </form>
 

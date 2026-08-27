@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ErrorAction {
@@ -8,7 +8,7 @@ interface ErrorAction {
 
 interface ErrorPageProps {
   code?: string;
-  icon: string;
+  icon?: React.ReactNode;
   /** Path under /public, e.g. "/errors/404.png" — falls back to `icon` until the file is dropped in. */
   image?: string;
   title: string;
@@ -41,7 +41,9 @@ const ErrorPage: React.FC<ErrorPageProps> = ({
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <div className="error-icon">{icon}</div>
+          <div className="error-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {icon}
+          </div>
         )}
         {code && <div className="error-code">{code}</div>}
         <h1>{title}</h1>
